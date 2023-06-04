@@ -1,0 +1,23 @@
+-- Copyright 2023 Sil3ntStorm https://github.com/Sil3ntStorm
+--
+-- Licensed under MS-RL, see https://opensource.org/licenses/MS-RL
+
+require('__core__/lualib/util.lua')
+
+require('prototypes/hidden-constant.lua')
+require('prototypes/hidden-combinators.lua')
+require('prototypes/filter.lua')
+
+local item = table.deepcopy(data.raw.item['arithmetic-combinator'])
+item.name = 'sil-filter-combinator'
+item.place_result = item.name
+item.icon = '__silent-filter-combinator__/graphics/filter-combinator.png'
+item.flags = {'mod-openable'}
+
+local recipe = table.deepcopy(data.raw.recipe['arithmetic-combinator'])
+recipe.name = item.name
+recipe.result = item.name
+
+data:extend{item, recipe}
+
+table.insert(data.raw['technology']['circuit-network'].effects, { type = 'unlock-recipe', recipe = recipe.name })

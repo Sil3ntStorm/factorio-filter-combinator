@@ -1,0 +1,6 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 2023-06-04
+
+  Features:
+    - Allow to filter the input for any number of signals you want to allow to pass through.
