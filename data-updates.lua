@@ -19,3 +19,8 @@ if (count > maxCount) then
     data.raw["constant-combinator"]["sil-filter-combinator-cc"].item_slot_count = count;
     log('Updated combinators to ' .. count .. ' slots');
 end
+
+if mods['nullius'] then
+    -- I will keep my own name, thank you very much Nullius... now go fuck off and stop touching other people's shit...
+    data.raw.item['sil-filter-combinator'].localised_name = {'entity-name.sil-filter-combinator'}
+end
