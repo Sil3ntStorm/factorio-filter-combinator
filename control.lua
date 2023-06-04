@@ -35,9 +35,8 @@ local name_prefix = 'sil-filter-combinator'
 local name_prefix_len = #name_prefix
 
 local function onEntityCreated(event)
-    if (event.created_entity.valid and event.created_entity.name == name_prefix) then
-        local main = event.created_entity
-        local surface = event.created_entity.surface
+    if (event.created_entity and event.created_entity.valid and event.created_entity.name == name_prefix) or (event.entity and event.entity.valid and event.entity.name == name_prefix) then
+        local main = event.created_entity or event.entity
         local signal_each = { type = 'virtual', name = 'signal-each' }
 
         -- Logic Circuitry Entities
@@ -232,7 +231,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, onRTSettingChange
 
 script.on_event(defines.events.on_gui_opened, onGuiOpen)
 script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined, defines.events.on_entity_died}, onEntityDeleted)
-script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, onEntityCreated)
+script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_revive}, onEntityCreated)
 script.on_event(defines.events.on_entity_cloned, onEntityCloned)
 
 script.on_init(function()
