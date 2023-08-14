@@ -17,5 +17,7 @@ cc.draw_circuit_wires = false
 cc.collision_box = nil
 cc.selection_box = nil
 cc.sprites = util.empty_sprite(1)
+cc.collision_mask = {}
+cc.activity_led_light_offsets = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }
 
 data:extend{cc}

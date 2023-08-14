@@ -35,7 +35,7 @@ local name_prefix = 'sil-filter-combinator'
 local name_prefix_len = #name_prefix
 
 local function onEntityCreated(event)
-    if (event.created_entity and event.created_entity.valid and event.created_entity.name == name_prefix) or (event.entity and event.entity.valid and event.entity.name == name_prefix) then
+    if (event.created_entity and event.created_entity.valid and (event.created_entity.name == name_prefix or event.created_entity.name == name_prefix .. '-packed')) or (event.entity and event.entity.valid and (event.entity.name == name_prefix or event.entity.name == name_prefix .. '-packed')) then
         local main = event.created_entity or event.entity
         local signal_each = { type = 'virtual', name = 'signal-each' }
 
@@ -238,12 +238,72 @@ local function onEntityPasted(event)
     end
 end
 
+--#region Compact Circuits Support
+
+---@param entity LuaEntity
+function ccs_get_info(entity)
+    if not entity or not entity.valid then
+        return nil
+    end
+    local idx = global.sil_filter_combinators[entity.unit_number]
+    ---@type LuaConstantCombinatorControlBehavior
+    local behavior = global.sil_fc_data[idx].cc.get_or_create_control_behavior()
+    return {
+        cc_enabled = behavior.enabled,
+        cc_params = behavior.parameters
+    }
+end
+
+---@param surface LuaSurface
+---@param position MapPosition
+---@param force LuaForce
+function ccs_create_packed_entity(info, surface, position, force)
+    local ent = surface.create_entity{name = name_prefix .. '-packed', position = position, force = force, direction = info.direction, raise_built = false}
+    if ent then
+        onEntityCreated({entity = ent})
+        local idx = global.sil_filter_combinators[ent.unit_number]
+        ---@type LuaConstantCombinatorControlBehavior
+        local behavior = global.sil_fc_data[idx].cc.get_or_create_control_behavior()
+        behavior.enabled = info.cc_enabled
+        behavior.parameters = info.cc_params
+    end
+    return ent
+end
+
+---@param surface LuaSurface
+---@param force LuaForce
+function ccs_create_entity(info, surface, force)
+    local ent = surface.create_entity{name = name_prefix, position = info.position, force = force, direction = info.direction, raise_built = false}
+    if ent then
+        onEntityCreated({entity = ent})
+        local idx = global.sil_filter_combinators[ent.unit_number]
+        ---@type LuaConstantCombinatorControlBehavior
+        local behavior = global.sil_fc_data[idx].cc.get_or_create_control_behavior()
+        behavior.enabled = info.cc_enabled
+        behavior.parameters = info.cc_params
+    end
+    return ent
+end
+--#endregion
+
 local function initCompat()
     if remote.interfaces["PickerDollies"] and remote.interfaces["PickerDollies"]["dolly_moved_entity_id"] then
         script.on_event(remote.call("PickerDollies", "dolly_moved_entity_id"), onEntityMoved)
     end
     if remote.interfaces['PickerDollies'] and remote.interfaces['PickerDollies']['add_oblong_name'] then
         remote.call('PickerDollies', 'add_oblong_name', name_prefix)
+    end
+    if script.active_mods['compaktcircuit'] and remote.interfaces['compaktcircuit'] and remote.interfaces['compaktcircuit']['add_combinator'] then
+        remote.add_interface(name_prefix, {
+            get_info = ccs_get_info,
+            create_packed_entity = ccs_create_packed_entity,
+            create_entity = ccs_create_entity
+        })
+        remote.call('compaktcircuit', 'add_combinator', {
+            name = name_prefix,
+            packed_names = { name_prefix .. '-packed' },
+            interface_name = name_prefix
+        })
     end
 end
 
