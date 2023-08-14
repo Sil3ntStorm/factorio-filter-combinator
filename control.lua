@@ -40,17 +40,17 @@ local function onEntityCreated(event)
         local signal_each = { type = 'virtual', name = 'signal-each' }
 
         -- Logic Circuitry Entities
-        cc = create_internal_entity(main, 'sil-filter-combinator-cc')
-        d1 = create_internal_entity(main, 'sil-filter-combinator-dc')
-        d2 = create_internal_entity(main, 'sil-filter-combinator-dc')
-        d3 = create_internal_entity(main, 'sil-filter-combinator-dc')
-        d4 = create_internal_entity(main, 'sil-filter-combinator-dc')
-        a1 = create_internal_entity(main, 'sil-filter-combinator-ac')
-        a2 = create_internal_entity(main, 'sil-filter-combinator-ac')
-        a3 = create_internal_entity(main, 'sil-filter-combinator-ac')
-        a4 = create_internal_entity(main, 'sil-filter-combinator-ac')
-        ccf = create_internal_entity(main, 'sil-filter-combinator-dc')
-        out = create_internal_entity(main, 'sil-filter-combinator-ac')
+        local cc = create_internal_entity(main, 'sil-filter-combinator-cc')
+        local d1 = create_internal_entity(main, 'sil-filter-combinator-dc')
+        local d2 = create_internal_entity(main, 'sil-filter-combinator-dc')
+        local d3 = create_internal_entity(main, 'sil-filter-combinator-dc')
+        local d4 = create_internal_entity(main, 'sil-filter-combinator-dc')
+        local a1 = create_internal_entity(main, 'sil-filter-combinator-ac')
+        local a2 = create_internal_entity(main, 'sil-filter-combinator-ac')
+        local a3 = create_internal_entity(main, 'sil-filter-combinator-ac')
+        local a4 = create_internal_entity(main, 'sil-filter-combinator-ac')
+        local ccf = create_internal_entity(main, 'sil-filter-combinator-dc')
+        local out = create_internal_entity(main, 'sil-filter-combinator-ac')
         -- Set Conditions
         ccf.get_or_create_control_behavior().parameters = { first_signal = signal_each, output_signal = signal_each, comparator = '!=', copy_count_from_input = false }
         out.get_or_create_control_behavior().parameters = { first_signal = signal_each, output_signal = signal_each, operation = '+', second_constant = 0 }
@@ -218,6 +218,26 @@ local function onGuiOpen(event)
     end
 end
 
+local function onEntityPasted(event)
+    local pl = game.get_player(event.player_index)
+    if not pl or not pl.valid or pl.force ~= event.source.force or pl.force ~= event.destination.force then
+        return
+    end
+    if event.source.name ~= name_prefix or event.destination.name ~= name_prefix then
+        return
+    end
+    local dest_idx = global.sil_filter_combinators[event.destination.unit_number]
+    local source_idx = global.sil_filter_combinators[event.source.unit_number]
+    if not dest_idx or not source_idx then
+        return
+    end
+    local src = global.sil_fc_data[source_idx].cc
+    local dst = global.sil_fc_data[dest_idx].cc
+    if src and src.valid and src.force == pl.force and dst and dst.valid and dst.force == pl.force then
+        dst.copy_settings(src)
+    end
+end
+
 local function initCompat()
     if remote.interfaces["PickerDollies"] and remote.interfaces["PickerDollies"]["dolly_moved_entity_id"] then
         script.on_event(remote.call("PickerDollies", "dolly_moved_entity_id"), onEntityMoved)
@@ -233,6 +253,7 @@ script.on_event(defines.events.on_gui_opened, onGuiOpen)
 script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined, defines.events.on_entity_died}, onEntityDeleted)
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_revive}, onEntityCreated)
 script.on_event(defines.events.on_entity_cloned, onEntityCloned)
+script.on_event(defines.events.on_entity_settings_pasted, onEntityPasted)
 
 script.on_init(function()
     if not global.sil_filter_combinators then
