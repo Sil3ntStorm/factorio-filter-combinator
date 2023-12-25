@@ -86,6 +86,17 @@ local function onEntityCreated(event)
         main.connect_neighbour({wire = defines.wire_type.green, target_entity = out, target_circuit_id = defines.circuit_connector_id.combinator_output, source_circuit_id = defines.circuit_connector_id.combinator_output})
         main.connect_neighbour({wire = defines.wire_type.red, target_entity = d1, target_circuit_id = defines.circuit_connector_id.combinator_input, source_circuit_id = defines.circuit_connector_id.combinator_input})
         main.connect_neighbour({wire = defines.wire_type.green, target_entity = d1, target_circuit_id = defines.circuit_connector_id.combinator_input, source_circuit_id = defines.circuit_connector_id.combinator_input})
+
+        -- Check if this was a blueprint
+        if event.tags then
+            local tags = event.tags
+            if tags.enabled ~= nil and tags.params ~= nil then
+                local behavior = cc.get_or_create_control_behavior()
+                behavior.enabled = tags.enabled
+                behavior.parameters = tags.params
+            end
+        end
+
         -- Store Entities
         local idx = #global.sil_fc_data + 1
         global.sil_fc_data[idx] = {main = main, cc = cc, calc = {d1, d2, d3, d4, a1, a2, a3, a4, ccf, out}}
@@ -238,10 +249,93 @@ local function onEntityPasted(event)
     end
 end
 
+--#region Blueprint and copy / paste support
+
+--- @param bp LuaItemStack
+local function save_to_blueprint(data, bp)
+    if not data then
+        return
+    end
+    if #data < 1 then
+        return
+    end
+    if not bp or not bp.is_blueprint_setup() then
+        return
+    end
+    local entities = bp.get_blueprint_entities()
+    if #entities < 1 then
+        return
+    end
+    for _, unit in pairs(data) do
+        local idx = global.sil_filter_combinators[unit]
+        --- @type LuaEntity
+        local src = global.sil_fc_data[idx].cc
+        local main = global.sil_fc_data[idx].main
+        --- @type LuaConstantCombinatorControlBehavior
+        local behavior = src.get_or_create_control_behavior()
+        local tags = {enabled = behavior.enabled, params = behavior.parameters}
+        for __, e in ipairs(entities) do
+            -- Because LUA is a fucking useless piece of shit we cannot compare values that are tables... because you know why the fuck would you want to....
+            -- if e.position == main.position then
+            if e.position.x == main.position.x and e.position.y == main.position.y then
+                e.tags = tags
+                break
+            end
+        end
+    end
+    -- Since we actually got a copy instead of a reference
+    bp.set_blueprint_entities(entities)
+end
+
+--- @param event EventData.on_player_setup_blueprint
+local function onEntityCopy(event)
+    if not event.area then
+        return
+    end
+
+    local player = game.players[event.player_index]
+    local entities = player.surface.find_entities_filtered{ area = event.area, force = player.force }
+    local result = {}
+    for _, ent in pairs(entities) do
+        if ent.name == name_prefix then
+            table.insert(result, ent.unit_number)
+        end
+    end
+    if #result < 1 then
+        return
+    end
+    if player.cursor_stack.valid_for_read and player.cursor_stack.name == 'blueprint' then
+        save_to_blueprint(result, player.cursor_stack)
+    else
+        -- Player is editing the blueprint, no access for us yet. Continue this in onBlueprintReady
+        if not global.sil_fc_blueprint_data then
+            global.sil_fc_blueprint_data = {}
+        end
+        global.sil_fc_blueprint_data[event.player_index] = result
+    end
+end
+
+--- @param event EventData.on_player_configured_blueprint
+local function onBlueprintReady(event)
+    if not global.sil_fc_blueprint_data then
+        global.sil_fc_blueprint_data = {}
+    end
+    local player = game.players[event.player_index]
+
+    if player and player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == 'blueprint' and global.sil_fc_blueprint_data[event.player_index] then
+        save_to_blueprint(global.sil_fc_blueprint_data[event.player_index], player.cursor_stack)
+    end
+    if global.sil_fc_blueprint_data[event.player_index] then
+        global.sil_fc_blueprint_data[event.player_index] = nil
+    end
+end
+
+--#endregion
+
 --#region Compact Circuits Support
 
 ---@param entity LuaEntity
-function ccs_get_info(entity)
+local function ccs_get_info(entity)
     if not entity or not entity.valid then
         return nil
     end
@@ -257,7 +351,7 @@ end
 ---@param surface LuaSurface
 ---@param position MapPosition
 ---@param force LuaForce
-function ccs_create_packed_entity(info, surface, position, force)
+local function ccs_create_packed_entity(info, surface, position, force)
     local ent = surface.create_entity{name = name_prefix .. '-packed', position = position, force = force, direction = info.direction, raise_built = false}
     if ent then
         onEntityCreated({entity = ent})
@@ -272,7 +366,7 @@ end
 
 ---@param surface LuaSurface
 ---@param force LuaForce
-function ccs_create_entity(info, surface, force)
+local function ccs_create_entity(info, surface, force)
     local ent = surface.create_entity{name = name_prefix, position = info.position, force = force, direction = info.direction, raise_built = false}
     if ent then
         onEntityCreated({entity = ent})
@@ -284,6 +378,7 @@ function ccs_create_entity(info, surface, force)
     end
     return ent
 end
+
 --#endregion
 
 local function initCompat()
@@ -314,6 +409,9 @@ script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robo
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_revive}, onEntityCreated)
 script.on_event(defines.events.on_entity_cloned, onEntityCloned)
 script.on_event(defines.events.on_entity_settings_pasted, onEntityPasted)
+
+script.on_event(defines.events.on_player_setup_blueprint, onEntityCopy)
+script.on_event(defines.events.on_player_configured_blueprint, onBlueprintReady)
 
 script.on_init(function()
     if not global.sil_filter_combinators then

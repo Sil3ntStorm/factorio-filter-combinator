@@ -13,10 +13,12 @@ item.name = 'sil-filter-combinator'
 item.place_result = item.name
 item.icon = '__silent-filter-combinator__/graphics/filter-combinator.png'
 item.flags = {'mod-openable'}
+item.order = 'c[combinators]-b[filter-combinator]'
 
 local recipe = table.deepcopy(data.raw.recipe['arithmetic-combinator'])
 recipe.name = item.name
 recipe.result = item.name
+recipe.order = item.order
 if mods['nullius'] then
     recipe.name = 'sil-filter-combinator'
     recipe.ingredients = {{'copper-cable', 5}, {'decider-combinator', 2}}

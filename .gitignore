@@ -1,3 +1,4 @@
 /releases/
 /.vs/
 *.bak
+/.vscode/
