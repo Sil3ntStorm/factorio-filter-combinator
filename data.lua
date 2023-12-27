@@ -7,6 +7,7 @@ require('__core__/lualib/util.lua')
 require('prototypes/hidden-constant.lua')
 require('prototypes/hidden-combinators.lua')
 require('prototypes/filter.lua')
+require('prototypes/style.lua')
 
 local item = table.deepcopy(data.raw.item['arithmetic-combinator'])
 item.name = 'sil-filter-combinator'

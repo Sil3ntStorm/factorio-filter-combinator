@@ -14,6 +14,7 @@ local function create_combinator(source, name)
     c.draw_circuit_wires = false
     c.collision_box = nil
     c.selection_box = nil
+    c.collision_mask = {}
     c.sprites = util.empty_sprite(1)
     c.energy_source = { type = 'void' }
     c.active_energy_usage = '0.001W'

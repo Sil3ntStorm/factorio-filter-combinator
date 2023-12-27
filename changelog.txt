@@ -1,8 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2023-12-27
+
+  Features:
+    - Added ability to filter based on signals present on a specific wire
+    - Added ability to switch from inclusive to exclusive mode (#2)
+---------------------------------------------------------------------------------------------------
 Version: 0.2.1
 Date: 2023-12-25
 
-  Features:
+  Bugfixes:
     - Fixed not being able to blueprint or copy and paste settings between filter combinators
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.0

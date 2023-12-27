@@ -2,6 +2,8 @@
 --
 -- Licensed under MS-RL, see https://opensource.org/licenses/MS-RL
 
+-- The sole reason for this file to even exist, is other mods misbehaving and doing stupid shit they are not supposed to be doing!
+
 local maxCount = data.raw["constant-combinator"]["sil-filter-combinator-cc"].item_slot_count;
 -- Initialize to 20 for some safety margin for badly written mods adding items when they should not!
 -- All prototypes should already exist when the first data-updates runs!
@@ -17,10 +19,6 @@ end
 
 if (count > maxCount) then
     data.raw["constant-combinator"]["sil-filter-combinator-cc"].item_slot_count = count;
-    log('Updated combinators to ' .. count .. ' slots');
+    log('Updated combinators to ' .. count .. ' slots because some mod(s) added ' .. (count - maxCount) + 40 .. ' prototypes AFTER first data stage, which is not supposed to be done!');
 end
 
-if mods['nullius'] then
-    -- I will keep my own name, thank you very much Nullius... now go fuck off and stop touching other people's shit...
-    data.raw.item['sil-filter-combinator'].localised_name = {'entity-name.sil-filter-combinator'}
-end
