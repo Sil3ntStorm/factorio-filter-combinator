@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2024-01-05
+
+  Bugfixes:
+    - Fixed not updating filters when only removing signals
+    - Fixed it taking some time to open / close the UI
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2023-12-27
 

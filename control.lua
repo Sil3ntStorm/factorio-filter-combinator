@@ -459,7 +459,7 @@ local function on_signal_selected(event)
     if not ui then
         return
     end
-    if not event.element.elem_value then
+    if not event.element.tags then
         return
     end
     local match = global.sil_filter_combinators[ui.unit]
@@ -471,16 +471,9 @@ local function on_signal_selected(event)
         return
     end
     local signal = event.element.elem_value;
+    local slot = event.element.tags.idx
     local behavior = data.cc.get_or_create_control_behavior()
-    local id = 1
-    for _, btn in pairs(ui.ui.sil_fc_content.sil_fc_row3.sil_fc_filter_section.frame.sil_fc_signal_container.children) do
-        if btn.elem_value then
-            behavior.set_signal(id, {signal = btn.elem_value, count = 1});
-        else
-            behavior.set_signal(id, nil)
-        end
-        id = id + 1
-    end
+    behavior.set_signal(slot, signal and {signal = signal, count = 1} or nil)
 end
 
 -- for some reason this shit ain't doing anything
@@ -501,13 +494,15 @@ local function make_grid_buttons(cc)
     --- @type LuaConstantCombinatorControlBehavior
     local behavior = cc.get_or_create_control_behavior()
     local list = {}
+    local empty_slot_count = 0
     -- For some reason it always is a table as big as the max signals supported... kinda unexpected but it works out I guess
     for i = 1, behavior.signals_count do
         local sig = behavior.get_signal(i)
         if (sig.signal) then
-            table.insert(list, {type = 'choose-elem-button', style = 'slot_button', elem_type = 'signal', signal = sig.signal, handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
-        else
-            table.insert(list, {type = 'choose-elem-button', style = 'slot_button', elem_type = 'signal', handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
+            table.insert(list, {type = 'choose-elem-button', tags = {idx = i}, style = 'slot_button', elem_type = 'signal', signal = sig.signal, handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
+        elseif empty_slot_count < 20 or #list % 10 ~= 0 then
+            empty_slot_count = empty_slot_count + 1
+            table.insert(list, {type = 'choose-elem-button', tags = {idx = i}, style = 'slot_button', elem_type = 'signal', handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
         end
     end
     return list
