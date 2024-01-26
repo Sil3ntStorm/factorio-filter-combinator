@@ -500,7 +500,7 @@ local function make_grid_buttons(cc)
         local sig = behavior.get_signal(i)
         if (sig.signal) then
             table.insert(list, {type = 'choose-elem-button', tags = {idx = i}, style = 'slot_button', elem_type = 'signal', signal = sig.signal, handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
-        elseif empty_slot_count < 20 or #list % 10 ~= 0 then
+        elseif empty_slot_count < settings.startup['sil-filcmb-empty-slots'].value or #list % 10 ~= 0 then
             empty_slot_count = empty_slot_count + 1
             table.insert(list, {type = 'choose-elem-button', tags = {idx = i}, style = 'slot_button', elem_type = 'signal', handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
         end
