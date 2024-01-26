@@ -240,7 +240,7 @@ local function onEntityDeleted(event)
         local match = global.sil_filter_combinators[unit_number]
         if match then
             local data = global.sil_fc_data[match]
-            if data and data.main and data.main.valid then
+            if data and data.main and data.main.valid and data.main.unit_number ~= unit_number then
                 data.main.destroy()
             end
             if data and data.cc and data.cc.valid then
