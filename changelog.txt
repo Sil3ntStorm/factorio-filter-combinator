@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 2024-01-26
+
+  Bugfixes:
+    - Fixed not getting the filter inserter back when mining it (thanks @123499)
+  Features:
+    - Added setting for the minimum number of empty slots in filter combinators
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2024-01-05
 
