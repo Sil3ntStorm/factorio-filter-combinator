@@ -128,6 +128,7 @@ local function update_entity(data)
     end
 end
 
+--- @param event EventData.on_built_entity | EventData.on_robot_built_entity | EventData.script_raised_revive
 local function onEntityCreated(event)
     if (event.created_entity and event.created_entity.valid and (event.created_entity.name == name_prefix or event.created_entity.name == name_prefix .. '-packed')) or (event.entity and event.entity.valid and (event.entity.name == name_prefix or event.entity.name == name_prefix .. '-packed')) then
         local main = event.created_entity or event.entity
@@ -776,18 +777,16 @@ local function save_to_blueprint(data, bp)
         local main = global.sil_fc_data[idx].main
         --- @type LuaConstantCombinatorControlBehavior
         local behavior = src.get_or_create_control_behavior()
-        local tags = {config = global.sil_fc_data[idx].config, params = behavior.parameters}
         for __, e in ipairs(entities) do
             -- Because LUA is a fucking useless piece of shit we cannot compare values that are tables... because you know why the fuck would you want to....
             -- if e.position == main.position then
             if e.position.x == main.position.x and e.position.y == main.position.y then
-                e.tags = tags
+                bp.set_blueprint_entity_tag(__, 'config', global.sil_fc_data[idx].config)
+                bp.set_blueprint_entity_tag(__, 'params', behavior.parameters)
                 break
             end
         end
     end
-    -- Since we actually got a copy instead of a reference
-    bp.set_blueprint_entities(entities)
 end
 
 --- @param event EventData.on_player_setup_blueprint
