@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 2024-01-27
+
+  Bugfixes:
+    - Fixed overriding the blueprint entities rather than just adding my own data. Aids
+      compatibility with other mods modifying blueprints as they are made.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 2024-01-26
 
