@@ -75,6 +75,7 @@ local function set_all_signals(comb)
     end
 end
 
+--- @param data FilterCombinatorData
 local function update_entity(data)
     local non_filter_wire = defines.wire_type.red
     local filter_wire = defines.wire_type.green
@@ -134,6 +135,7 @@ local function onEntityCreated(event)
         local main = event.created_entity or event.entity
         local signal_each = { type = 'virtual', name = 'signal-each' }
 
+        --- @type FilterCombinatorConfig
         local conf = {
             enabled = true,
             filter_input_from_wire = false,
@@ -156,12 +158,11 @@ local function onEntityCreated(event)
         local inv = create_internal_entity(main, 'sil-filter-combinator-ac')
         -- Check if this was a blueprint which we added custom data to
         if event.tags then
-            local tags = event.tags
-            if tags.config ~= nil and tags.params ~= nil then
+            if event.tags.config ~= nil and event.tags.params ~= nil then
                 local behavior = cc.get_or_create_control_behavior()
-                conf = tags.config
+                conf = event.tags.config
                 behavior.enabled = conf.enabled
-                behavior.parameters = tags.params
+                behavior.parameters = event.tags.params
                 ex.get_or_create_control_behavior().enabled = conf.enabled
             end
         end
@@ -296,12 +297,9 @@ local function onEntityMoved(event)
     end
 end
 
+--- @param event EventData.on_entity_cloned
 local function onEntityCloned(event)
     -- Space Exploration Support
-    -- event.source
-    -- event.destination
-    -- event.name
-    -- event.tick
     if (not (event.source and event.source.valid and event.destination and event.destination.valid)) then
         return
     end
@@ -322,6 +320,17 @@ local function onEntityCloned(event)
                         data.calc[i] = dst
                         break
                     end
+                end
+                if src_unit == data.inv.unit_number then
+                    data.inv = dst
+                elseif src_unit == data.input_pos.unit_number then
+                    data.input_pos = dst
+                elseif src_unit == data.input_neg.unit_number then
+                    data.input_neg = dst
+                elseif src_unit == data.filter.unit_number then
+                    data.filter = dst
+                elseif src_unit == data.inp.unit_number then
+                    data.inp = dst
                 end
             elseif src.name == name_prefix .. '-cc' then
                 if data.cc.unit_number == src_unit then
@@ -501,7 +510,7 @@ local function make_grid_buttons(cc)
         local sig = behavior.get_signal(i)
         if (sig.signal) then
             table.insert(list, {type = 'choose-elem-button', tags = {idx = i}, style = 'slot_button', elem_type = 'signal', signal = sig.signal, handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
-        elseif empty_slot_count < settings.startup['sil-filcmb-empty-slots'].value or #list % 10 ~= 0 then
+        elseif empty_slot_count < settings.startup['sfc-empty-slots'].value or #list % 10 ~= 0 then
             empty_slot_count = empty_slot_count + 1
             table.insert(list, {type = 'choose-elem-button', tags = {idx = i}, style = 'slot_button', elem_type = 'signal', handler = {[defines.events.on_gui_elem_changed] = on_signal_selected}})
         end
@@ -960,6 +969,7 @@ script.on_init(function()
         global.sil_filter_combinators = {}
     end
     if not global.sil_fc_data then
+        --- @type FilterCombinatorData[]
         global.sil_fc_data = {}
     end
     initCompat()
@@ -970,3 +980,21 @@ script.on_load(function()
 end)
 
 script.on_configuration_changed(on_configuration_changed)
+
+--- @class FilterCombinatorConfig
+--- @field enabled boolean Whether this filter combinator is active
+--- @field filter_input_from_wire boolean Whether the signals on the specified wire are used as a filter input
+--- @field filter_input_wire defines.wire_type The wire that speficies the signals to filter from the other wire
+--- @field exclusive boolean Whether this filter combinator is running in exclusive mode
+
+--- @class FilterCombinatorData
+--- @field main LuaEntity
+--- @field cc LuaEntity
+--- @field calc LuaEntity[]
+--- @field ex LuaEntity
+--- @field inv LuaEntity
+--- @field input_pos LuaEntity
+--- @field input_neg LuaEntity
+--- @field filter LuaEntity
+--- @field inp LuaEntity
+--- @field config FilterCombinatorConfig

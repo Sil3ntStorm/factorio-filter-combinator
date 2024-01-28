@@ -1,6 +1,6 @@
 data:extend({
     {
-        name = 'sil-filcmb-empty-slots',
+        name = 'sfc-empty-slots',
         type = 'int-setting',
         setting_type = 'startup',
         order = 'a',
