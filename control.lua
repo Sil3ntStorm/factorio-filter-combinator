@@ -776,7 +776,7 @@ local function save_to_blueprint(data, bp)
         return
     end
     local entities = bp.get_blueprint_entities()
-    if #entities < 1 then
+    if not entities or #entities < 1 then
         return
     end
     for _, unit in pairs(data) do
