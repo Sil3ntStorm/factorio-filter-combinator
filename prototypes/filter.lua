@@ -62,6 +62,7 @@ if mods['compaktcircuit'] then
     packed.minable = nil
     packed.selectable_in_game = false
     packed.activity_led_light_offsets = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }
+    packed.activity_led_sprites = util.empty_sprite(1)
     packed.and_symbol_sprites = util.empty_sprite(1)
     packed.divide_symbol_sprites = util.empty_sprite(1)
     packed.left_shift_symbol_sprites = util.empty_sprite(1)
