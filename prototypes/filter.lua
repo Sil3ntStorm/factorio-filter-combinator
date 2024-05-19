@@ -75,5 +75,12 @@ if mods['compaktcircuit'] then
     packed.right_shift_symbol_sprites = util.empty_sprite(1)
     packed.xor_symbol_sprites = util.empty_sprite(1)
 
+    -- turn off the flashing icons when part of a compaktcircuit. This is visible when
+    -- a packed cc is not powered.
+    local energy_source = table.deepcopy(comb.energy_source)
+    energy_source.render_no_network_icon = false
+    energy_source.render_no_power_icon = false
+    packed.energy_source = energy_source
+
     data:extend{packed}
 end
