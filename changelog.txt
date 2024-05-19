@@ -4,6 +4,8 @@ Date: 2024-05-19
 
   Bugfixes:
     - Fixed not cleaning up when other mods destroy entities via script
+  Changes:
+    - Check for entities that were previously killed and remove leftover entities
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.5
 Date: 2024-05-19

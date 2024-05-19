@@ -243,6 +243,26 @@ local function onEntityCreated(event)
     end
 end
 
+--- @param data FilterCombinatorData
+local function kill_internal_entities(data)
+    if data and data.cc and data.cc.valid then
+        global.sil_filter_combinators[data.cc.unit_number] = nil
+        data.cc.destroy()
+    end
+    if data and data.ex and data.ex.valid then
+        global.sil_filter_combinators[data.ex.unit_number] = nil
+        data.ex.destroy()
+    end
+    if data and data.calc then
+        for _,e in pairs(data.calc) do
+            if e and e.valid then
+                global.sil_filter_combinators[e.unit_number] = nil
+                e.destroy()
+            end
+        end
+    end
+end
+
 local function onEntityDeleted(event)
     if (not (event.entity and event.entity.valid)) then
         return
@@ -253,21 +273,10 @@ local function onEntityDeleted(event)
         if match then
             local data = global.sil_fc_data[match]
             if data and data.main and data.main.valid and data.main.unit_number ~= unit_number then
+                global.sil_filter_combinators[data.main.unit_number] = nil
                 data.main.destroy()
             end
-            if data and data.cc and data.cc.valid then
-                data.cc.destroy()
-            end
-            if data and data.ex and data.ex.valid then
-                data.ex.destroy()
-            end
-            if data and data.calc then
-                for _,e in pairs(data.calc) do
-                    if e and e.valid then
-                        e.destroy()
-                    end
-                end
-            end
+            kill_internal_entities(data)
             global.sil_fc_data[match] = nil
         end
         global.sil_filter_combinators[unit_number] = nil
@@ -908,6 +917,19 @@ end
 
 --#endregion
 
+local function cleanup_for_missing_main()
+    if not global.sil_fc_data then
+        return
+    end
+    for _, data in pairs(global.sil_fc_data) do
+        if data and not (data.main and data.main.valid) then
+            log('Missing main entity - killing internal entities')
+            kill_internal_entities(data)
+            global.sil_fc_data[_] = nil
+        end
+    end
+end
+
 local function initCompat()
     if remote.interfaces["PickerDollies"] and remote.interfaces["PickerDollies"]["dolly_moved_entity_id"] then
         script.on_event(remote.call("PickerDollies", "dolly_moved_entity_id"), onEntityMoved)
@@ -948,6 +970,8 @@ local function on_configuration_changed(changed)
         global.sil_fc_migration_data = nil
     else
         global.sil_fc_slot_error_logged = false
+        log('Checking for missing main entities and cleaning up leftovers...')
+        cleanup_for_missing_main()
         log('Updating for potentially changed signals...')
         for _, data in pairs(global.sil_fc_data) do
             if data and data.ex and data.ex.valid then
