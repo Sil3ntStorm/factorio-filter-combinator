@@ -873,12 +873,9 @@ local function ccs_get_info(entity)
     }
 end
 
----@param surface LuaSurface
----@param position MapPosition
----@param force LuaForce
-local function ccs_create_packed_entity(info, surface, position, force)
-    local ent = surface.create_entity{name = name_prefix .. '-packed', position = position, force = force, direction = info.direction, raise_built = false}
-    if ent then
+--- @param ent LuaEntity?
+local function ccs_handle_spawned(ent, info)
+    if ent and ent.valid then
         onEntityCreated({entity = ent})
         local idx = global.sil_filter_combinators[ent.unit_number]
         local data = global.sil_fc_data[idx]
@@ -890,6 +887,14 @@ local function ccs_create_packed_entity(info, surface, position, force)
         data.ex.get_or_create_control_behavior().enabled = data.config.enabled
         update_entity(data)
     end
+end
+
+---@param surface LuaSurface
+---@param position MapPosition
+---@param force LuaForce
+local function ccs_create_packed_entity(info, surface, position, force)
+    local ent = surface.create_entity{name = name_prefix .. '-packed', position = position, force = force, direction = info.direction, raise_built = false}
+    ccs_handle_spawned(ent, info)
     return ent
 end
 
@@ -897,18 +902,7 @@ end
 ---@param force LuaForce
 local function ccs_create_entity(info, surface, force)
     local ent = surface.create_entity{name = name_prefix, position = info.position, force = force, direction = info.direction, raise_built = false}
-    if ent then
-        onEntityCreated({entity = ent})
-        local idx = global.sil_filter_combinators[ent.unit_number]
-        local data = global.sil_fc_data[idx]
-        data.config = info.cc_config
-        ---@type LuaConstantCombinatorControlBehavior
-        local behavior = data.cc.get_or_create_control_behavior()
-        behavior.parameters = info.cc_params
-        behavior.enabled = data.config.enabled
-        data.ex.get_or_create_control_behavior().enabled = data.config.enabled
-        update_entity(data)
-    end
+    ccs_handle_spawned(ent, info)
     return ent
 end
 
@@ -966,8 +960,8 @@ end
 script.on_event(defines.events.on_runtime_mod_setting_changed, onRTSettingChanged)
 
 script.on_event(defines.events.on_gui_opened, onGuiOpen)
-script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined, defines.events.on_entity_died}, onEntityDeleted)
-script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_revive}, onEntityCreated)
+script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined, defines.events.on_entity_died, defines.events.script_raised_destroy}, onEntityDeleted)
+script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_revive, defines.events.script_raised_built}, onEntityCreated)
 script.on_event(defines.events.on_entity_cloned, onEntityCloned)
 script.on_event(defines.events.on_entity_settings_pasted, onEntityPasted)
 
