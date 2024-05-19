@@ -39,7 +39,7 @@ local name_prefix_len = #name_prefix
 --- @param comb LuaEntity
 local function set_all_signals(comb)
     ---@type LuaConstantCombinatorControlBehavior
-    behavior = comb.get_or_create_control_behavior()
+    local behavior = comb.get_or_create_control_behavior()
     local max = behavior.signals_count
     local idx = 1
     local had_error = false
@@ -73,6 +73,18 @@ local function set_all_signals(comb)
         log('!!! ERROR !!! Some mod(s) added ' .. max - idx + 1 .. ' additional items, fluids and / or signals AFTER the initial data stage, which is NOT supposed to be done by any mod! Exclusive mode might not work correctly. Please report this error and include a complete list of mods used.')
         global.sil_fc_slot_error_logged = true
     end
+end
+
+--- @return FilterCombinatorConfig
+local function get_default_config()
+    --- @type FilterCombinatorConfig
+    local conf = {
+        enabled = true,
+        filter_input_from_wire = false,
+        filter_input_wire = defines.wire_type.green,
+        exclusive = false
+    }
+    return conf
 end
 
 --- @param data FilterCombinatorData
@@ -136,12 +148,7 @@ local function onEntityCreated(event)
         local signal_each = { type = 'virtual', name = 'signal-each' }
 
         --- @type FilterCombinatorConfig
-        local conf = {
-            enabled = true,
-            filter_input_from_wire = false,
-            filter_input_wire = defines.wire_type.green,
-            exclusive = false
-        }
+        local conf = get_default_config()
         -- Logic Circuitry Entities
         local cc = create_internal_entity(main, 'sil-filter-combinator-cc')
         local d1 = create_internal_entity(main, 'sil-filter-combinator-dc')
@@ -161,13 +168,12 @@ local function onEntityCreated(event)
             local behavior = cc.get_or_create_control_behavior()
             if event.tags.config ~= nil and event.tags.params ~= nil then
                 conf = event.tags.config
-                behavior.enabled = conf.enabled
                 behavior.parameters = event.tags.params
             elseif event.tags.cc_config ~= nil and event.tags.cc_params ~= nil then
                 conf = event.tags.cc_config
-                behavior.enabled = conf.enabled
                 behavior.parameters = event.tags.cc_params
             end
+            behavior.enabled = conf.enabled
             ex.get_or_create_control_behavior().enabled = conf.enabled
         end
         -- Set up Exclusive mode Combinator signals

@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 2024-05-19
+
+  Bugfixes:
+    - Fixed error when creating blueprints without any entities
+    - Fixed an error which caused CompaktCircuits containing signal filters to not retain
+      the settings correctly (#4)
+    - Fixed localization issue for "Empty Slots" setting (#3)
+---------------------------------------------------------------------------------------------------
 Version: 1.0.4
 Date: 2024-01-28
 
