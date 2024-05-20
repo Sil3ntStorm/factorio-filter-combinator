@@ -19,6 +19,7 @@ local function create_combinator(source, name)
     c.energy_source = { type = 'void' }
     c.active_energy_usage = '0.001W'
     c.activity_led_light_offsets = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }
+    c.activity_led_sprites = empty_sprite_4way
     return c
 end
 

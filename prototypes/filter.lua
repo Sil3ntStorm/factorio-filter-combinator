@@ -73,6 +73,8 @@ if mods['compaktcircuit'] then
     packed.power_symbol_sprites = util.empty_sprite(1)
     packed.right_shift_symbol_sprites = util.empty_sprite(1)
     packed.xor_symbol_sprites = util.empty_sprite(1)
+    packed.alert_icon_scale = 0
+    packed.activity_led_sprites = { north = util.empty_sprite(1), south = util.empty_sprite(1), east = util.empty_sprite(1), west = util.empty_sprite(1)}
 
     data:extend{packed}
 end

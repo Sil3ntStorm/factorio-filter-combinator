@@ -19,5 +19,6 @@ cc.selection_box = nil
 cc.sprites = util.empty_sprite(1)
 cc.collision_mask = {}
 cc.activity_led_light_offsets = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }
+cc.activity_led_sprites = { north = util.empty_sprite(1), south = util.empty_sprite(1), east = util.empty_sprite(1), west = util.empty_sprite(1)}
 
 data:extend{cc}
