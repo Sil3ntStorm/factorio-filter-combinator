@@ -25,7 +25,6 @@ for _, data in pairs(local_data) do
         local surf = main.surface
         local force = main.force
         local restore = {}
-        local idx = global.sil_filter_combinators[main.unit_number]
         local unit_ids = {}
         table.insert(unit_ids, main.unit_number)
         table.insert(unit_ids, data.cc.unit_number)

@@ -219,7 +219,7 @@ local function onEntityCreated(event)
         main.connect_neighbour({wire = defines.wire_type.red, target_entity = d1, target_circuit_id = defines.circuit_connector_id.combinator_input, source_circuit_id = defines.circuit_connector_id.combinator_input})
         main.connect_neighbour({wire = defines.wire_type.green, target_entity = d1, target_circuit_id = defines.circuit_connector_id.combinator_input, source_circuit_id = defines.circuit_connector_id.combinator_input})
         -- Store Entities
-        local idx = #global.sil_fc_data + 1
+        local idx = main.unit_number
         global.sil_fc_data[idx] = {main = main, cc = cc, calc = {d1, d2, d3, d4, a1, a2, a3, a4, ccf, out, inv}, ex = ex, inv = inv, input_pos = a3, input_neg = a1, filter = ccf, inp = d1, config = conf}
         global.sil_filter_combinators[main.unit_number] = idx
         global.sil_filter_combinators[cc.unit_number]   = idx

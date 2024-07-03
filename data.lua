@@ -27,10 +27,18 @@ if mods['nullius'] then
     recipe.category = 'tiny-crafting'
     recipe.order = 'nullius-fa'
 end
+if mods['Ultracube'] then
+    recipe.name = 'sil-filter-combinator'
+    recipe.ingredients = {{'cube-basic-matter-unit', 2}, {'cube-electronic-circuit', 5}}
+    recipe.category = 'cube-fabricator-handcraft'
+end
 
 data:extend{item, recipe}
 
 table.insert(data.raw['technology']['circuit-network'].effects, { type = 'unlock-recipe', recipe = recipe.name })
 if mods['nullius'] then
     table.insert(data.raw['technology']['nullius-computation'].effects, { type = 'unlock-recipe', recipe = recipe.name })
+end
+if mods['Ultracube'] then
+    table.insert(data.raw['technology']['cube-combinatorics'].effects, { type = 'unlock-recipe', recipe = recipe.name })
 end
