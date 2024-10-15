@@ -786,23 +786,32 @@ end
 --- @param bp LuaItemStack
 local function save_to_blueprint(data, bp)
     if not data then
-        return
+        log('save_to_blueprint: No Data')
+        return false
     end
     if #data < 1 then
-        return
+        log('save_to_blueprint: Empty Data')
+        return false
+    end
+    if not bp then
+        log('save_to_blueprint: no Blueprint')
+        return false
     end
     if not bp or not bp.is_blueprint_setup() then
-        return
+        log('save_to_blueprint: Blueprint not ready')
+        return false
     end
     local entities = bp.get_blueprint_entities()
     if not entities or #entities < 1 then
-        return
+        log('save_to_blueprint: No Entities in Blueprint: ' .. serpent.line(entities))
+        return false
     end
     for _, unit in pairs(data) do
         local idx = global.sil_filter_combinators[unit]
         --- @type LuaEntity
         local src = global.sil_fc_data[idx].cc
         local main = global.sil_fc_data[idx].main
+        log('save_to_blueprint: cc unit=' .. src.unit_number .. ' main unit=' .. main.unit_number)
         --- @type LuaConstantCombinatorControlBehavior
         local behavior = src.get_or_create_control_behavior()
         for __, e in ipairs(entities) do
@@ -811,15 +820,20 @@ local function save_to_blueprint(data, bp)
             if e.position.x == main.position.x and e.position.y == main.position.y then
                 bp.set_blueprint_entity_tag(__, 'config', global.sil_fc_data[idx].config)
                 bp.set_blueprint_entity_tag(__, 'params', behavior.parameters)
+                log('save_to_blueprint - Stored Config in blueprint:' .. serpent.line(global.sil_fc_data[idx].config))
                 break
+            else
+                log('save_to_blueprint - Entity position mismatch: ' .. serpent.line(e.position) .. ' vs ' .. serpent.line(main.position))
             end
         end
     end
+    return true
 end
 
 --- @param event EventData.on_player_setup_blueprint
 local function onEntityCopy(event)
     if not event.area then
+        log('onEntityCopy - no area selected')
         return
     end
 
@@ -832,31 +846,69 @@ local function onEntityCopy(event)
         end
     end
     if #result < 1 then
+        log('onEntityCopy - no filter combinators in seleection')
         return
     end
-    if player.cursor_stack.valid_for_read and player.cursor_stack.name == 'blueprint' then
+    if player.cursor_stack.valid_for_read and player.cursor_stack.name == 'blueprint' and player.cursor_stack.is_blueprint_setup() then
+        log('onEntityCopy - is blueprint setup=' .. serpent.line(player.cursor_stack.is_blueprint_setup()))
         save_to_blueprint(result, player.cursor_stack)
     else
         -- Player is editing the blueprint, no access for us yet. Continue this in onBlueprintReady
         if not global.sil_fc_blueprint_data then
             global.sil_fc_blueprint_data = {}
         end
+        if player then
+            log('onEntityCopy - FAIL - has player')
+            if global.sil_fc_blueprint_data[event.player_index] then
+                log('onEntityCopy - FAIL - has player cache data')
+            end
+            if player.cursor_stack then
+                log('onEntityCopy - FAIL - has player.cursor_stack')
+                if player.cursor_stack.valid_for_read then
+                    log('onEntityCopy - FAIL - player cursor_stack is valid_for_read')
+                    if player.cursor_stack.name == 'blueprint' then
+                        log('onEntityCopy - FAIL - player cursor_stack is blueprint - is_blueprint_setup=' .. serpent.line(player.cursor_stack.is_blueprint_setup()))
+                    end
+                end
+            end
+        end
         global.sil_fc_blueprint_data[event.player_index] = result
+        log('onEntityCopy - Stored filter combinators in selection for player ' .. event.player_index)
     end
 end
 
 --- @param event EventData.on_player_configured_blueprint
 local function onBlueprintReady(event)
+    log('onBlueprintReady')
     if not global.sil_fc_blueprint_data then
         global.sil_fc_blueprint_data = {}
     end
     local player = game.players[event.player_index]
-
+    local success = false
     if player and player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == 'blueprint' and global.sil_fc_blueprint_data[event.player_index] then
-        save_to_blueprint(global.sil_fc_blueprint_data[event.player_index], player.cursor_stack)
+        success = save_to_blueprint(global.sil_fc_blueprint_data[event.player_index], player.cursor_stack)
+        log('onBlueprintReady - saved success=' .. serpent.line(success))
+    else
+        log('onBlueprintReady - FAIL - missing player, player not holding blueprint, no player cached data or player stack not valid for reading')
+        if player then
+            log('onBlueprintReady - FAIL - has player')
+            if global.sil_fc_blueprint_data[event.player_index] then
+                log('onBlueprintReady - FAIL - has player cache data')
+            end
+            if player.cursor_stack then
+                log('onBlueprintReady - FAIL - has player.cursor_stack')
+                if player.cursor_stack.valid_for_read then
+                    log('onBlueprintReady - FAIL - player cursor_stack is valid_for_read')
+                    if player.cursor_stack.name == 'blueprint' then
+                        log('onBlueprintReady - FAIL - player cursor_stack is blueprint')
+                    end
+                end
+            end
+        end
     end
-    if global.sil_fc_blueprint_data[event.player_index] then
+    if success and global.sil_fc_blueprint_data[event.player_index] then
         global.sil_fc_blueprint_data[event.player_index] = nil
+        log('onBlueprintReady - removed cached data')
     end
 end
 
