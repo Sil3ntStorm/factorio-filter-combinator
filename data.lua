@@ -9,6 +9,7 @@ require('prototypes/hidden-combinators.lua')
 require('prototypes/filter.lua')
 require('prototypes/style.lua')
 
+
 local item = table.deepcopy(data.raw.item['arithmetic-combinator'])
 item.name = 'sil-filter-combinator'
 item.place_result = item.name
@@ -18,7 +19,7 @@ item.order = 'c[combinators]-b[filter-combinator]'
 
 local recipe = table.deepcopy(data.raw.recipe['arithmetic-combinator'])
 recipe.name = item.name
-recipe.result = item.name
+recipe.results = {{type='item', name = item.name, amount = 1}}
 recipe.order = item.order
 if mods['nullius'] then
     recipe.name = 'sil-filter-combinator'

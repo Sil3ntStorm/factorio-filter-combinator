@@ -5,31 +5,17 @@
 local comb = table.deepcopy(data.raw['arithmetic-combinator']['arithmetic-combinator'])
 local sprite = {
     filename = '__silent-filter-combinator__/graphics/filter-combinator-display.png',
-    width = 15,
-    height = 11,
+    width = 30,
+    height = 22,
     scale = comb.and_symbol_sprites.north.scale,
     shift = comb.and_symbol_sprites.north.shift,
-    hr_version = {
-        filename = '__silent-filter-combinator__/graphics/hr-filter-combinator-display.png',
-        width = 30,
-        height = 22,
-        scale = comb.and_symbol_sprites.north.hr_version.scale,
-        shift = comb.and_symbol_sprites.north.hr_version.shift
-    }
 }
 local sprite_v = {
     filename = '__silent-filter-combinator__/graphics/filter-combinator-display.png',
-    width = 15,
-    height = 11,
+    width = 30,
+    height = 22,
     scale = comb.and_symbol_sprites.east.scale,
     shift = comb.and_symbol_sprites.east.shift,
-    hr_version = {
-        filename = '__silent-filter-combinator__/graphics/hr-filter-combinator-display.png',
-        width = 30,
-        height = 22,
-        scale = comb.and_symbol_sprites.east.hr_version.scale,
-        shift = comb.and_symbol_sprites.east.hr_version.shift
-    }
 }
 local full_sprite = { east = sprite_v, west = sprite_v, north = sprite, south = sprite }
 
@@ -53,12 +39,12 @@ data:extend{comb}
 if mods['compaktcircuit'] then
     local packed = table.deepcopy(comb)
     packed.name = 'sil-filter-combinator-packed'
-    packed.flags = {'placeable-off-grid', 'not-repairable', 'not-on-map', 'not-deconstructable', 'not-blueprintable', 'hidden', 'hide-alt-info', 'not-flammable', 'no-copy-paste', 'not-selectable-in-game', 'not-upgradable', 'not-in-kill-statistics', 'not-in-made-in'}
+    packed.flags = {'placeable-off-grid', 'not-repairable', 'not-on-map', 'not-deconstructable', 'not-blueprintable', 'hide-alt-info', 'not-flammable', 'no-copy-paste', 'not-selectable-in-game', 'not-upgradable', 'not-in-kill-statistics', 'not-in-made-in'}
     packed.draw_circuit_wires = false
     packed.collision_box = nil
     packed.selection_box = nil
     packed.sprites = util.empty_sprite(1)
-    packed.collision_mask = {}
+    packed.collision_mask = {layers={}, not_colliding_with_itself = true}
     packed.minable = nil
     packed.selectable_in_game = false
     packed.activity_led_light_offsets = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }

@@ -3,19 +3,22 @@
 -- Licensed under MS-RL, see https://opensource.org/licenses/MS-RL
 
 local empty_sprite_4way = { north = util.empty_sprite(1), south = util.empty_sprite(1), east = util.empty_sprite(1), west = util.empty_sprite(1)}
+local config = require('__silent-filter-combinator__/dev')
 
 local function create_combinator(source, name)
     local c = table.deepcopy(source)
     c.name = name
     c.minable = nil
     c.destructible = false
-    c.selectable_in_game = false
-    c.flags = {'placeable-off-grid', 'not-repairable', 'not-on-map', 'not-deconstructable', 'not-blueprintable', 'hidden', 'hide-alt-info', 'not-flammable', 'no-copy-paste', 'not-selectable-in-game', 'not-upgradable', 'not-in-kill-statistics', 'not-in-made-in'}
-    c.draw_circuit_wires = false
+    if not config['debug_mode'] then
+        c.selectable_in_game = false
+        c.flags = {'placeable-off-grid', 'not-repairable', 'not-on-map', 'not-deconstructable', 'not-blueprintable', 'hide-alt-info', 'not-flammable', 'no-copy-paste', 'not-selectable-in-game', 'not-upgradable', 'not-in-kill-statistics', 'not-in-made-in'}
+        c.draw_circuit_wires = false
+        c.sprites = util.empty_sprite(1)
+        c.selection_box = nil
+    end
     c.collision_box = nil
-    c.selection_box = nil
-    c.collision_mask = {}
-    c.sprites = util.empty_sprite(1)
+    c.collision_mask = {layers={}, not_colliding_with_itself = true}
     c.energy_source = { type = 'void' }
     c.active_energy_usage = '0.001W'
     c.activity_led_light_offsets = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } }
