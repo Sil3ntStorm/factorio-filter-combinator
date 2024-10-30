@@ -44,31 +44,38 @@ local name_prefix_len = #name_prefix
 local function set_all_signals(comb)
     ---@type LuaConstantCombinatorControlBehavior
     local behavior = comb.get_or_create_control_behavior()
+    while behavior.sections_count > 0 do
+        behavior.remove_section(behavior.sections_count)
+    end
     if behavior.sections_count < 1 then
         behavior.add_section()
     end
     local section = behavior.get_section(1)
-    local max_used_slot = section.filters_count
     local idx = 1
-    local had_error = false
     for sig_name, _ in pairs(prototypes.item) do
         section.set_slot(idx, {value = {type = 'item', name = sig_name, quality = "normal", comparator = "="}, min = 1})
         idx = idx + 1
+        if idx > 1000 then
+            idx = 1
+            section = behavior.add_section()
+        end
     end
     for sig_name, _ in pairs(prototypes.fluid) do
         section.set_slot(idx, {value = {type = 'fluid', name = sig_name, quality = "normal", comparator = "="}, min = 1})
         idx = idx + 1
+        if idx > 1000 then
+            idx = 1
+            section = behavior.add_section()
+        end
     end
     for sig_name, proto in pairs(prototypes.virtual_signal) do
         if not proto.special then
             section.set_slot(idx, {value = {type = 'virtual', name = sig_name, quality = "normal", comparator = "="}, min = 1})
             idx = idx + 1
-        end
-    end
-    if idx < max_used_slot then
-        while idx < max_used_slot do
-            section.clear_slot(idx)
-            idx = idx + 1
+            if idx > 1000 then
+                idx = 1
+                section = behavior.add_section()
+            end
         end
     end
 end
