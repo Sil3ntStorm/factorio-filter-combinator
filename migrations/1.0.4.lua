@@ -2,7 +2,7 @@
 --
 -- Licensed under MS-RL, see https://opensource.org/licenses/MS-RL
 
-for _, data in pairs(global.sil_fc_data) do
+for _, data in pairs(storage.sil_fc_data) do
     --- @type FilterCombinatorData
     if not (data.filter and data.filter.valid) then
         data.filter = data.calc[9]

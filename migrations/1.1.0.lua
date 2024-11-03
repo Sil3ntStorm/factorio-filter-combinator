@@ -4,14 +4,14 @@
 
 require('__core__/lualib/util.lua')
 
-local local_data = table.deepcopy(global.sil_fc_data)
-global.sil_fc_data = {}
-global.sil_filter_combinators = {}
+local local_data = table.deepcopy(storage.sil_fc_data)
+storage.sil_fc_data = {}
+storage.sil_filter_combinators = {}
 
 --- @param ent LuaEntity
 local function log_and_destruct(ent)
     log('1.1.0 - killing ' .. ent.name .. ' on ' .. ent.surface.name .. ' at ' .. serpent.line(ent.position))
-    global.sil_filter_combinators[ent.unit_number] = nil
+    storage.sil_filter_combinators[ent.unit_number] = nil
     ent.destroy()
 end
 
@@ -52,18 +52,18 @@ for _, data in pairs(local_data) do
         local new_idx = data.main.unit_number
         if new_idx then
             log('Moving entity internal tracking from ' .. _ .. ' to ' .. new_idx .. ' for entity at ' .. serpent.line(data.main.position) .. ' on ' .. data.main.surface.name)
-            global.sil_fc_data[new_idx] = data
-            global.sil_filter_combinators[data.main.unit_number] = new_idx
-            global.sil_filter_combinators[data.cc.unit_number] = new_idx
-            global.sil_filter_combinators[data.ex.unit_number] = new_idx
-            global.sil_filter_combinators[data.filter.unit_number] = new_idx
-            global.sil_filter_combinators[data.inp.unit_number] = new_idx
-            global.sil_filter_combinators[data.input_neg.unit_number] = new_idx
-            global.sil_filter_combinators[data.input_pos.unit_number] = new_idx
-            global.sil_filter_combinators[data.inv.unit_number] = new_idx
+            storage.sil_fc_data[new_idx] = data
+            storage.sil_filter_combinators[data.main.unit_number] = new_idx
+            storage.sil_filter_combinators[data.cc.unit_number] = new_idx
+            storage.sil_filter_combinators[data.ex.unit_number] = new_idx
+            storage.sil_filter_combinators[data.filter.unit_number] = new_idx
+            storage.sil_filter_combinators[data.inp.unit_number] = new_idx
+            storage.sil_filter_combinators[data.input_neg.unit_number] = new_idx
+            storage.sil_filter_combinators[data.input_pos.unit_number] = new_idx
+            storage.sil_filter_combinators[data.inv.unit_number] = new_idx
             for _, c in pairs(data.calc) do
                 if c and c.valid and c.unit_number then
-                    global.sil_filter_combinators[c.unit_number] = new_idx
+                    storage.sil_filter_combinators[c.unit_number] = new_idx
                 end
             end
         end

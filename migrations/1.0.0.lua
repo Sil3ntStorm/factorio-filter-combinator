@@ -6,10 +6,10 @@ require('__core__/lualib/util.lua')
 
 local name_prefix = 'sil-filter-combinator'
 local name_prefix_len = #name_prefix
-local local_data = table.deepcopy(global.sil_fc_data)
-global.sil_fc_data = {}
-global.sil_filter_combinators = {}
-global.sil_fc_migration_data = {}
+local local_data = table.deepcopy(storage.sil_fc_data)
+storage.sil_fc_data = {}
+storage.sil_filter_combinators = {}
+storage.sil_fc_migration_data = {}
 
 for _, data in pairs(local_data) do
     if data and data.cc and data.cc.valid and data.main and data.main.valid then
@@ -54,7 +54,7 @@ for _, data in pairs(local_data) do
             n_ghost.tags = bp_data
             -- _, n_ent, __ = n_ghost.silent_revive{raise_revive = true}
             -- Our actual code does not run when simply creating the entity here, so we will defer that until the actual code can run?
-            table.insert(global.sil_fc_migration_data, {ent = n_ghost, con = restore})
+            table.insert(storage.sil_fc_migration_data, {ent = n_ghost, con = restore})
         else
             log('Failed to create ghost for combinator on ' .. surf.name .. ' at ' .. x .. ',' .. y .. ' with config ' .. serpent.line(bp_data.config))
         end
