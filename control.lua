@@ -873,6 +873,10 @@ local function save_to_blueprint(data, bp)
     end
     for _, unit in pairs(data) do
         local idx = storage.sil_filter_combinators[unit]
+        if not (idx and storage.sil_fc_data[idx]) then
+            log('save_to_blueprint: ERROR: Failed to find internal data for combinator ' .. serpent.line(unit) .. ' with ' .. serpent.line(idx))
+            return false
+        end
         --- @type LuaEntity
         local src = storage.sil_fc_data[idx].cc
         local main = storage.sil_fc_data[idx].main
@@ -1112,8 +1116,8 @@ end
 script.on_event(defines.events.on_runtime_mod_setting_changed, onRTSettingChanged)
 
 script.on_event(defines.events.on_gui_opened, onGuiOpen)
-script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined, defines.events.on_entity_died, defines.events.script_raised_destroy}, onEntityDeleted)
-script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_revive, defines.events.script_raised_built}, onEntityCreated)
+script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_pre_mined, defines.events.on_space_platform_pre_mined, defines.events.on_entity_died, defines.events.script_raised_destroy}, onEntityDeleted)
+script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.on_space_platform_built_entity, defines.events.script_raised_revive, defines.events.script_raised_built}, onEntityCreated)
 script.on_event(defines.events.on_entity_cloned, onEntityCloned)
 script.on_event(defines.events.on_entity_settings_pasted, onEntityPasted)
 
